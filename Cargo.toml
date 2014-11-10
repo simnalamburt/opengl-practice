@@ -2,3 +2,6 @@
 name = "stainless"
 version = "0.0.1"
 authors = ["Hyeon Kim <simnalamburt@gmail.com>"]
+
+[dependencies.glfw]
+git = "https://github.com/bjz/glfw-rs.git"

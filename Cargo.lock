@@ -1,4 +1,26 @@
 [root]
 name = "stainless"
 version = "0.0.1"
+dependencies = [
+ "glfw 0.0.1 (git+https://github.com/bjz/glfw-rs.git)",
+]
+
+[[package]]
+name = "glfw"
+version = "0.0.1"
+source = "git+https://github.com/bjz/glfw-rs.git#6afb8eadf23e2ae5925e70d364c196ceab653edb"
+dependencies = [
+ "glfw-sys 3.0.4 (git+https://github.com/servo/glfw?ref=cargo-3.0.4)",
+ "semver 0.1.0 (git+https://github.com/rust-lang/semver)",
+]
+
+[[package]]
+name = "glfw-sys"
+version = "3.0.4"
+source = "git+https://github.com/servo/glfw?ref=cargo-3.0.4#765dace7e4125b87c764f5ac0e7a80eae5c550b2"
+
+[[package]]
+name = "semver"
+version = "0.1.0"
+source = "git+https://github.com/rust-lang/semver#7dca047a9cd40e929a4545b37a1917daff82f156"
 
