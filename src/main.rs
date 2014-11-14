@@ -41,7 +41,7 @@ static FS_SRC: &'static str = r#"
     out vec4 out_color;
 
     void main() {
-       out_color = vec4(1.0, 1.0, 1.0, 1.0);
+       out_color = vec4(1.0, 1.0, 1.0, 0.0);
     }
 "#;
 
@@ -60,6 +60,7 @@ fn main() {
     glfw.window_hint(glfw::OpenglForwardCompat(true));
     glfw.window_hint(glfw::OpenglProfile(glfw::OpenGlCoreProfile));
 
+    // Create Window
     let (window, events) = glfw.create_window(1024, 768, "Stainless", glfw::Windowed)
         .expect("Failed to create GLFW window.");
 
@@ -69,6 +70,14 @@ fn main() {
 
     // Load the OpenGL function pointers
     gl::load_with(|s| window.get_proc_address(s));
+
+    // OpenGL configuration
+    unsafe {
+        gl::ClearColor(0.0, 0.0, 0.0, 1.0);
+        gl::ClearDepth(1.0);
+        gl::Enable(gl::DEPTH_TEST);
+        gl::DepthFunc(gl::LEQUAL);
+    }
 
     // Create GLSL shaders
     let vs = compile_shader(VS_SRC, gl::VERTEX_SHADER);
@@ -113,8 +122,7 @@ fn main() {
         // Draw
         unsafe {
             // Clear the screen to black
-            gl::ClearColor(0.0, 0.0, 0.0, 1.0);
-            gl::Clear(gl::COLOR_BUFFER_BIT);
+            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
 
             // Draw a triangle from the 3 vertices
             gl::DrawArrays(gl::TRIANGLES, 0, 3);
