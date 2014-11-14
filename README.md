@@ -1,4 +1,4 @@
-stainless
+My OpenGL Practice
 ========
 
 ![](img/sample.png)

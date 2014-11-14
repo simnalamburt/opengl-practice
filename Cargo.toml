@@ -1,5 +1,5 @@
 [package]
-name = "stainless"
+name = "opengl-practice"
 version = "0.0.1"
 authors = ["Hyeon Kim <simnalamburt@gmail.com>"]
 
