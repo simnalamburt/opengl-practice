@@ -1,7 +1,7 @@
 stainless
 ========
 
-Super hero
+![](img/sample.png)
 
 ### Requirements
 
