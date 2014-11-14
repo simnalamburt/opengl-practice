@@ -2,7 +2,31 @@
 name = "stainless"
 version = "0.0.1"
 dependencies = [
+ "gl 0.0.1 (git+https://github.com/bjz/gl-rs)",
  "glfw 0.0.1 (git+https://github.com/bjz/glfw-rs.git)",
+]
+
+[[package]]
+name = "gl"
+version = "0.0.1"
+source = "git+https://github.com/bjz/gl-rs#218f14c94d79331fc5487f8564dc71f7ec4a22a8"
+dependencies = [
+ "gl_generator 0.0.1 (git+https://github.com/bjz/gl-rs)",
+]
+
+[[package]]
+name = "gl_common"
+version = "0.0.1"
+source = "git+https://github.com/bjz/gl-rs#218f14c94d79331fc5487f8564dc71f7ec4a22a8"
+
+[[package]]
+name = "gl_generator"
+version = "0.0.1"
+source = "git+https://github.com/bjz/gl-rs#218f14c94d79331fc5487f8564dc71f7ec4a22a8"
+dependencies = [
+ "gl_common 0.0.1 (git+https://github.com/bjz/gl-rs)",
+ "khronos_api 0.0.2 (git+https://github.com/bjz/gl-rs)",
+ "rust-xml 0.1.0 (git+https://github.com/netvl/rust-xml)",
 ]
 
 [[package]]
@@ -18,6 +42,16 @@ dependencies = [
 name = "glfw-sys"
 version = "3.0.4"
 source = "git+https://github.com/servo/glfw?ref=cargo-3.0.4#765dace7e4125b87c764f5ac0e7a80eae5c550b2"
+
+[[package]]
+name = "khronos_api"
+version = "0.0.2"
+source = "git+https://github.com/bjz/gl-rs#218f14c94d79331fc5487f8564dc71f7ec4a22a8"
+
+[[package]]
+name = "rust-xml"
+version = "0.1.0"
+source = "git+https://github.com/netvl/rust-xml#d6c57380a300b94f7e7881979dbe5459dbe4ca06"
 
 [[package]]
 name = "semver"

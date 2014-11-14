@@ -5,3 +5,6 @@ authors = ["Hyeon Kim <simnalamburt@gmail.com>"]
 
 [dependencies.glfw]
 git = "https://github.com/bjz/glfw-rs.git"
+
+[dependencies.gl]
+git = "https://github.com/bjz/gl-rs"

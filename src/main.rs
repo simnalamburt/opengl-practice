@@ -1,5 +1,6 @@
-extern crate native;
+extern crate gl;
 extern crate glfw;
+extern crate native;
 
 use glfw::Context;
 
@@ -12,25 +13,37 @@ fn start(argc: int, argv: *const *const u8) -> int {
 fn main() {
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
-    // Create a windowed mode window and its OpenGL context
-    let (window, events) = glfw.create_window(300, 300, "Hello this is window", glfw::Windowed)
+    // Choose a GL profile
+    glfw.window_hint(glfw::ContextVersion(4, 1));
+    glfw.window_hint(glfw::OpenglForwardCompat(true));
+    glfw.window_hint(glfw::OpenglProfile(glfw::OpenGlCoreProfile));
+
+    let (window, events) = glfw.create_window(1024, 768, "Stainless", glfw::Windowed)
         .expect("Failed to create GLFW window.");
 
-    // Listen to the user's keyboard input
+    // Window configuration
     window.set_key_polling(true);
-    // Make the window's context current
     window.make_current();
+
+    // Load the OpenGL function pointers
+    gl::load_with(|s| window.get_proc_address(s));
 
     // Loop until the user closes the window
     while !window.should_close() {
-        // Swap front and back buffers
-        window.swap_buffers();
-
         // Poll for and process events
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
             handle_window_event(&window, event);
         }
+
+        // Draw
+        unsafe {
+            gl::ClearColor(0.3, 0.3, 0.3, 1.0);
+            gl::Clear(gl::COLOR_BUFFER_BIT);
+        }
+
+        // Swap front and back buffers
+        window.swap_buffers();
     }
 }
 
