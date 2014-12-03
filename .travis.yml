@@ -1,4 +1,16 @@
 language: rust
+# os:
+#   - linux
+#   - osx
+env:
+  global:
+    - secure: BfoF1M6OEy6RVFgTyC+VTG/EaLBXWkoeeS/hwDbAFxPEdUu//TOwpbeaKkrO1Rxg9GnU0S+ACGU7j1AOmOVQpsmNEkGbTY2bLwM78huvDdB01HaFJiWKASxYlE+R3DXA+ZIyCmCzy6lxMZbBb0D2u6j+lJ3YlOCYs25wcF659tA=
+install:
+  - sudo apt-get install libXxf86vm-dev
+after_script:
+  - cargo doc
+  - ln -s target/doc .
+  - curl http://www.rust-ci.org/artifacts/put?t=$RUSTCI_TOKEN | sh
 notifications:
   irc:
     nick: opengl-practice
@@ -7,8 +19,3 @@ notifications:
     template:
       - "#%{build_number} %{result}, %{build_url}"
     skip_join: true
-# os:
-#   - linux
-#   - osx
-install:
-  - sudo apt-get install libXxf86vm-dev
