@@ -2,7 +2,6 @@
 
 extern crate gl;
 extern crate glfw;
-extern crate native;
 
 use std::mem;
 use std::ptr;
@@ -57,22 +56,16 @@ static FS_SRC: &'static str = r#"
 "#;
 
 
-#[start]
-fn start(argc: int, argv: *const *const u8) -> int {
-    // Run GLFW on the main thread
-    native::start(argc, argv, main)
-}
-
 fn main() {
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     // Choose a GL profile
-    glfw.window_hint(glfw::ContextVersion(3, 2));
-    glfw.window_hint(glfw::OpenglForwardCompat(true));
-    glfw.window_hint(glfw::OpenglProfile(glfw::OpenGlCoreProfile));
+    glfw.window_hint(glfw::WindowHint::ContextVersion(3, 2));
+    glfw.window_hint(glfw::WindowHint::OpenglForwardCompat(true));
+    glfw.window_hint(glfw::WindowHint::OpenglProfile(glfw::OpenGlProfileHint::Core));
 
     // Create Window
-    let (window, events) = glfw.create_window(1024, 768, "Stainless", glfw::Windowed)
+    let (window, events) = glfw.create_window(1024, 768, "Stainless", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     // Window configuration
@@ -215,7 +208,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
 fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
     println!("{}", event);
     match event {
-        glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => {
+        glfw::WindowEvent::Key(glfw::Key::Escape, _, glfw::Action::Press, _) => {
             window.set_should_close(true)
         }
         _ => {}
