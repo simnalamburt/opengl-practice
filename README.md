@@ -1,7 +1,7 @@
 My OpenGL Practice [![Build Status][travis-i]][travis-a]
 ========
 
-![](img/sample.png)
+![](example/screenshot.png)
 
 ### Requirements
 

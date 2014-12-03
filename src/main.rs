@@ -1,3 +1,7 @@
+//! My OpenGL Practice
+//!
+//! ![](//github.com/simnalamburt/opengl-practice/raw/master/example/screenshot.png)
+
 #![feature(globs)]
 
 extern crate gl;
