@@ -2,6 +2,8 @@
 //!
 //! ![](//github.com/simnalamburt/opengl-practice/raw/master/example/screenshot.png)
 
+#![feature(std_misc)]
+
 extern crate gl;
 extern crate glfw;
 
