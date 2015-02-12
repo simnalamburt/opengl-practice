@@ -1,4 +1,4 @@
-My OpenGL Practice [![Build Status][travis-i]][travis-a]
+My OpenGL Practice [![travis-i][]][travis-a]
 ========
 
 ![](example/screenshot.png)
@@ -7,7 +7,7 @@ My OpenGL Practice [![Build Status][travis-i]][travis-a]
 
 * **Rust**
 * CMake
-* *(on Linux)* libXxf86vm-dev
+* *(Linux only)* libXxf86vm-dev libxinerama-dev libxcursor-dev
 
 [travis-i]: https://travis-ci.org/simnalamburt/opengl-practice.svg?branch=master
 [travis-a]: https://travis-ci.org/simnalamburt/opengl-practice
