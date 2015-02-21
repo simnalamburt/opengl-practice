@@ -114,17 +114,17 @@ fn main() {
 
         // Use shader program
         gl::UseProgram(program);
-        gl::BindFragDataLocation(program, 0, CString::from_slice("colorOut".as_bytes()).as_ptr());
+        gl::BindFragDataLocation(program, 0, CString::new("colorOut").unwrap().as_ptr());
 
         // Specify the layout of the vertex data
-        let pos_attr = gl::GetAttribLocation(program, CString::from_slice("position".as_bytes()).as_ptr());
+        let pos_attr = gl::GetAttribLocation(program, CString::new("position").unwrap().as_ptr());
         gl::EnableVertexAttribArray(pos_attr as GLuint);
         gl::VertexAttribPointer(
             pos_attr as GLuint, 2, gl::FLOAT, gl::FALSE as GLboolean,
             5 * mem::size_of::<GLfloat>() as GLsizei,
             ptr::null());
 
-        let color_attr = gl::GetAttribLocation(program, CString::from_slice("color".as_bytes()).as_ptr());
+        let color_attr = gl::GetAttribLocation(program, CString::new("color").unwrap().as_ptr());
         gl::EnableVertexAttribArray(color_attr as GLuint);
         gl::VertexAttribPointer(
             color_attr as GLuint, 3, gl::FLOAT, gl::FALSE as GLboolean,
@@ -169,7 +169,7 @@ fn compile_shader(src: &str, shader_type: GLenum) -> GLuint {
         shader = gl::CreateShader(shader_type);
 
         // Attempt to compile the shader
-        gl::ShaderSource(shader, 1, &CString::from_slice(src.as_bytes()).as_ptr(), ptr::null());
+        gl::ShaderSource(shader, 1, &CString::new(src).unwrap().as_ptr(), ptr::null());
         gl::CompileShader(shader);
 
         // Get the compile status
