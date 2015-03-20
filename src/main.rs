@@ -1,9 +1,3 @@
-//! My OpenGL Practice
-//!
-//! ![](//github.com/simnalamburt/opengl-practice/raw/master/example/screenshot.png)
-
-#![feature(std_misc)]
-
 extern crate gl;
 extern crate glfw;
 
@@ -182,7 +176,7 @@ fn compile_shader(src: &str, shader_type: GLenum) -> GLuint {
             gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
             let mut buf: Vec<u8> = repeat(0).take(len as usize - 1).collect(); // subtract 1 to skip the trailing null character
             gl::GetShaderInfoLog(shader, len, ptr::null_mut(), buf.as_mut_ptr() as *mut GLchar);
-            panic!("{:?}", str::from_utf8(buf.as_slice()).ok().expect("ShaderInfoLog not valid utf8"));
+            panic!("{:?}", str::from_utf8(&buf).ok().expect("ShaderInfoLog not valid utf8"));
         }
     }
     shader
@@ -207,7 +201,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
             gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
             let mut buf: Vec<u8> = repeat(0).take(len as usize - 1).collect(); // subtract 1 to skip the trailing null character
             gl::GetProgramInfoLog(program, len, ptr::null_mut(), buf.as_mut_ptr() as *mut GLchar);
-            panic!("{:?}", str::from_utf8(buf.as_slice()).ok().expect("ProgramInfoLog not valid utf8"));
+            panic!("{:?}", str::from_utf8(&buf).ok().expect("ProgramInfoLog not valid utf8"));
         }
     }
     program
