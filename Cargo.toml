@@ -1,0 +1,10 @@
+[package]
+name = "encode-practice"
+version = "0.1.0"
+authors = ["Hyeon Kim <simnalamburt@gmail.com>"]
+
+[dependencies]
+obj-rs = { version = "0.4.12", git = "https://github.com/simnalamburt/obj-rs.git", branch = "serialize" }
+rustc-serialize = "0.3"
+time = "0.1"
+bincode = "0.4"
