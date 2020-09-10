@@ -1,7 +1,7 @@
-My OpenGL Practice [![travis-i][]][travis-a]
+My OpenGL Practice [![travis-i]][travis-a]
 ========
 
-![screenshot][]
+![screenshot]
 
 ### Requirements
 
@@ -11,4 +11,4 @@ My OpenGL Practice [![travis-i][]][travis-a]
 
 [travis-i]: https://travis-ci.org/simnalamburt/opengl-practice.svg?branch=master
 [travis-a]: https://travis-ci.org/simnalamburt/opengl-practice
-[screenshot]: http://simnalamburt.github.io/opengl-practice/screenshot.png
+[screenshot]: https://raw.githubusercontent.com/simnalamburt/i/master/opengl-practice/triangle.png
