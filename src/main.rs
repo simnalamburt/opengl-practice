@@ -62,8 +62,8 @@ fn main() {
 
     // Choose a GL profile
     glfw.window_hint(glfw::WindowHint::ContextVersion(3, 2));
-    glfw.window_hint(glfw::WindowHint::OpenglForwardCompat(true));
-    glfw.window_hint(glfw::WindowHint::OpenglProfile(glfw::OpenGlProfileHint::Core));
+    glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
+    glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
 
     // Create Window
     let (mut window, events) = glfw.create_window(1024, 768, "Stainless", glfw::WindowMode::Windowed)

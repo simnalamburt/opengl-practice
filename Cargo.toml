@@ -4,5 +4,5 @@ version = "0.0.1"
 authors = ["Hyeon Kim <simnalamburt@gmail.com>"]
 
 [dependencies]
-gl = "*"
-glfw = "*"
+gl = "0.14.0"
+glfw = "0.40.0"
