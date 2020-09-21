@@ -3,19 +3,19 @@ extern crate glfw;
 
 use std::ffi::CString;
 use std::iter::repeat;
-use std::mem;
-use std::ptr;
-use std::str;
+use std::{mem, ptr, str};
 
-use gl::types::*;
+use gl::types::{GLboolean, GLchar, GLenum, GLfloat, GLint, GLsizei, GLsizeiptr, GLuint};
 use glfw::Context;
 
 //
 // A triangle
 //
 static VERTEX_DATA: [GLfloat; 15] = [
-    //  X       Y       R       G       B
-    0.0, 0.5, 1.0, 0.0, 0.0, 0.5, -0.5, 0.0, 1.0, 0.0, -0.5, -0.5, 0.0, 0.0, 1.0,
+    // X   Y    R    G    B
+    0.0, 0.5, 1.0, 0.0, 0.0, // p1
+    0.5, -0.5, 0.0, 1.0, 0.0, // p2
+    -0.5, -0.5, 0.0, 0.0, 1.0, // p3
 ];
 
 //
@@ -58,11 +58,10 @@ fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).ok().unwrap();
 
     // Choose a GL profile
-    glfw.window_hint(glfw::WindowHint::ContextVersion(3, 2));
-    glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
-    glfw.window_hint(glfw::WindowHint::OpenGlProfile(
-        glfw::OpenGlProfileHint::Core,
-    ));
+    use glfw::WindowHint;
+    glfw.window_hint(WindowHint::ContextVersion(3, 3));
+    glfw.window_hint(WindowHint::OpenGlForwardCompat(true));
+    glfw.window_hint(WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
 
     // Create Window
     let (mut window, events) = glfw
