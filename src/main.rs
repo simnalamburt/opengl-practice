@@ -22,7 +22,7 @@ static VERTEX_DATA: [GLfloat; 15] = [
 // Vertex Shader
 //
 static VS_SRC: &'static str = r#"
-    #version 410
+    #version 330
 
     in vec2 position;
     in vec3 color;
@@ -41,7 +41,7 @@ static VS_SRC: &'static str = r#"
 // Fragment Shader
 //
 static FS_SRC: &'static str = r#"
-    #version 410
+    #version 330
 
     in Data {
         vec3 color;
