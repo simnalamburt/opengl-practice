@@ -1,9 +1,11 @@
-use std::error::Error;
-use std::ffi::CString;
-use std::iter::repeat;
-use std::mem::size_of;
-use std::ptr::{null, null_mut};
-use std::str::from_utf8;
+use std::{
+    error::Error,
+    ffi::CString,
+    iter::repeat,
+    mem::size_of,
+    ptr::{null, null_mut},
+    str::from_utf8,
+};
 
 use gl::types::{GLenum, GLfloat, GLint, GLsizei, GLsizeiptr, GLuint};
 use glfw::Context;
