@@ -5,7 +5,7 @@ use std::mem::size_of;
 use std::ptr::{null, null_mut};
 use std::str::from_utf8;
 
-use gl::types::{GLboolean, GLchar, GLenum, GLfloat, GLint, GLsizei, GLsizeiptr, GLuint};
+use gl::types::{GLenum, GLfloat, GLint, GLsizei, GLsizeiptr, GLuint};
 use glfw::Context;
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
@@ -115,27 +115,27 @@ fn main() -> MyResult<()> {
 
         // Specify the layout of the vertex data
         let position = CString::new("position")?;
-        let pos_attr = gl::GetAttribLocation(program, position.as_ptr());
-        gl::EnableVertexAttribArray(pos_attr as GLuint);
+        let pos_attr = gl::GetAttribLocation(program, position.as_ptr()) as GLuint;
+        gl::EnableVertexAttribArray(pos_attr);
         gl::VertexAttribPointer(
-            pos_attr as GLuint,
+            pos_attr,
             2,
             gl::FLOAT,
-            gl::FALSE as GLboolean,
+            gl::FALSE,
             5 * size_of::<GLfloat>() as GLsizei,
             null(),
         );
 
         let color = CString::new("color")?;
-        let color_attr = gl::GetAttribLocation(program, color.as_ptr());
-        gl::EnableVertexAttribArray(color_attr as GLuint);
+        let color_attr = gl::GetAttribLocation(program, color.as_ptr()) as GLuint;
+        gl::EnableVertexAttribArray(color_attr);
         gl::VertexAttribPointer(
-            color_attr as GLuint,
+            color_attr,
             3,
             gl::FLOAT,
-            gl::FALSE as GLboolean,
+            gl::FALSE,
             5 * size_of::<GLfloat>() as GLsizei,
-            null::<std::ffi::c_void>().offset(2 * size_of::<GLfloat>() as isize),
+            null::<GLfloat>().offset(2) as *const _,
         );
     }
 
@@ -189,7 +189,7 @@ unsafe fn compile_shader(src: &str, shader_type: GLenum) -> MyResult<GLuint> {
         let mut len = 0;
         gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
         let mut buf: Vec<u8> = repeat(0).take(len as usize - 1).collect(); // subtract 1 to skip the trailing null character
-        gl::GetShaderInfoLog(shader, len, null_mut(), buf.as_mut_ptr() as *mut GLchar);
+        gl::GetShaderInfoLog(shader, len, null_mut(), buf.as_mut_ptr() as *mut _);
         panic!("{:?}", from_utf8(&buf)?);
     }
 
@@ -209,10 +209,10 @@ unsafe fn link_program(vs: GLuint, fs: GLuint) -> MyResult<GLuint> {
 
     // Fail on error
     if status != (gl::TRUE as GLint) {
-        let mut len: GLint = 0;
+        let mut len = 0;
         gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
         let mut buf: Vec<u8> = repeat(0).take(len as usize - 1).collect(); // subtract 1 to skip the trailing null character
-        gl::GetProgramInfoLog(program, len, null_mut(), buf.as_mut_ptr() as *mut GLchar);
+        gl::GetProgramInfoLog(program, len, null_mut(), buf.as_mut_ptr() as *mut _);
         panic!("{:?}", from_utf8(&buf)?);
     }
 
