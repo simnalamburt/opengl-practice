@@ -151,9 +151,8 @@ fn main() -> MyResult<()> {
         *control_flow = ControlFlow::Wait;
 
         match event {
-            Event::LoopDestroyed => return,
-            Event::WindowEvent { event, .. } => match event {
-                WindowEvent::CloseRequested => {
+            Event::WindowEvent { event, .. } => {
+                if let WindowEvent::CloseRequested = event {
                     // Cleanup
                     unsafe {
                         gl::DeleteProgram(program);
@@ -164,8 +163,7 @@ fn main() -> MyResult<()> {
                     }
                     *control_flow = ControlFlow::Exit
                 }
-                _ => (),
-            },
+            }
             Event::RedrawRequested(_) => {
                 unsafe {
                     // Clear the screen to black
