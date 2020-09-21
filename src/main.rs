@@ -8,7 +8,13 @@ use std::{
 };
 
 use gl::types::{GLenum, GLfloat, GLint, GLsizei, GLsizeiptr, GLuint};
-use glfw::Context;
+
+use glutin::{
+    event::{Event, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    window::WindowBuilder,
+    ContextBuilder, GlProfile, GlRequest,
+};
 
 type MyResult<T> = Result<T, Box<dyn Error>>;
 
@@ -59,25 +65,25 @@ static FS_SRC: &str = r#"
 "#;
 
 fn main() -> MyResult<()> {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS)?;
+    let el = EventLoop::new();
+    let wb = WindowBuilder::new()
+        .with_title("An awesome triangle")
+        .with_inner_size(glutin::dpi::LogicalSize::new(1024.0, 768.0));
+    let windowed_context = ContextBuilder::new()
+        .with_srgb(false)
+        .with_vsync(true)
+        .with_gl(GlRequest::Latest)
+        .with_gl_profile(GlProfile::Core)
+        .build_windowed(wb, &el)?;
+    let windowed_context = unsafe { windowed_context.make_current().unwrap() };
 
-    // Choose a GL profile
-    use glfw::WindowHint;
-    glfw.window_hint(WindowHint::ContextVersion(3, 3));
-    glfw.window_hint(WindowHint::OpenGlForwardCompat(true));
-    glfw.window_hint(WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
-
-    // Create Window
-    let (mut window, events) = glfw
-        .create_window(1024, 768, "Stainless", glfw::WindowMode::Windowed)
-        .ok_or("Failed to create GLFW window.")?;
-
-    // Window configuration
-    window.set_key_polling(true);
-    window.make_current();
+    println!(
+        "Pixel format of the window's GL context:\n{:#?}",
+        windowed_context.get_pixel_format()
+    );
 
     // Load the OpenGL function pointers
-    gl::load_with(|s| window.get_proc_address(s));
+    gl::load_with(|s| windowed_context.context().get_proc_address(s));
 
     let (vs, fs, program, mut vao, mut vbo);
 
@@ -141,37 +147,38 @@ fn main() -> MyResult<()> {
         );
     }
 
-    // Loop until the user closes the window
-    while !window.should_close() {
-        // Poll for and process events
-        glfw.poll_events();
-        for (_, event) in glfw::flush_messages(&events) {
-            handle_window_event(&mut window, event);
+    el.run(move |event, _, control_flow| {
+        *control_flow = ControlFlow::Wait;
+
+        match event {
+            Event::LoopDestroyed => return,
+            Event::WindowEvent { event, .. } => match event {
+                WindowEvent::CloseRequested => {
+                    // Cleanup
+                    unsafe {
+                        gl::DeleteProgram(program);
+                        gl::DeleteShader(fs);
+                        gl::DeleteShader(vs);
+                        gl::DeleteBuffers(1, &vbo);
+                        gl::DeleteVertexArrays(1, &vao);
+                    }
+                    *control_flow = ControlFlow::Exit
+                }
+                _ => (),
+            },
+            Event::RedrawRequested(_) => {
+                unsafe {
+                    // Clear the screen to black
+                    gl::ClearColor(0.1, 0.1, 0.1, 1.0);
+                    gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
+                    // Draw a triangle from the 3 vertices
+                    gl::DrawArrays(gl::TRIANGLES, 0, 3);
+                }
+                windowed_context.swap_buffers().unwrap();
+            }
+            _ => (),
         }
-
-        // Draw
-        unsafe {
-            // Clear the screen to black
-            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
-
-            // Draw a triangle from the 3 vertices
-            gl::DrawArrays(gl::TRIANGLES, 0, 3);
-        }
-
-        // Swap front and back buffers
-        window.swap_buffers();
-    }
-
-    // Cleanup
-    unsafe {
-        gl::DeleteProgram(program);
-        gl::DeleteShader(fs);
-        gl::DeleteShader(vs);
-        gl::DeleteBuffers(1, &vbo);
-        gl::DeleteVertexArrays(1, &vao);
-    }
-
-    Ok(())
+    })
 }
 
 unsafe fn compile_shader(src: &str, shader_type: GLenum) -> MyResult<GLuint> {
@@ -219,11 +226,4 @@ unsafe fn link_program(vs: GLuint, fs: GLuint) -> MyResult<GLuint> {
     }
 
     Ok(program)
-}
-
-fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
-    println!("{:?}", event);
-    if let glfw::WindowEvent::Key(glfw::Key::Escape, _, glfw::Action::Press, _) = event {
-        window.set_should_close(true)
-    }
 }
