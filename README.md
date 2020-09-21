@@ -1,9 +1,8 @@
 My OpenGL Practice
 ========
 ```bash
-sudo apt install \
-  cmake libxxf86vm-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
-cargo build
+sudo apt install libxcursor1 libxrandr2 libxi6 libx11-xcb1 libgl1 libegl1
+cargo run
 ```
 
 ![screenshot]
