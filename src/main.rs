@@ -131,7 +131,7 @@ fn main() {
             gl::FLOAT,
             gl::FALSE as GLboolean,
             5 * mem::size_of::<GLfloat>() as GLsizei,
-            ptr::null().offset(3 * mem::size_of::<GLfloat>() as isize),
+            ptr::null::<std::ffi::c_void>().offset(2 * mem::size_of::<GLfloat>() as isize),
         );
     }
 
