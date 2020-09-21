@@ -1,9 +1,8 @@
-extern crate gl;
-extern crate glfw;
-
 use std::ffi::CString;
 use std::iter::repeat;
-use std::{mem, ptr, str};
+use std::mem::size_of;
+use std::ptr::{null, null_mut};
+use std::str::from_utf8;
 
 use gl::types::{GLboolean, GLchar, GLenum, GLfloat, GLint, GLsizei, GLsizeiptr, GLuint};
 use glfw::Context;
@@ -75,23 +74,23 @@ fn main() {
     // Load the OpenGL function pointers
     gl::load_with(|s| window.get_proc_address(s));
 
+    let (vs, fs, program, mut vao, mut vbo);
+
     // OpenGL configuration
     unsafe {
         gl::ClearColor(0.0, 0.0, 0.0, 1.0);
         gl::ClearDepth(1.0);
         gl::Enable(gl::DEPTH_TEST);
         gl::DepthFunc(gl::LEQUAL);
-    }
 
-    // Create GLSL shaders
-    let vs = compile_shader(VS_SRC, gl::VERTEX_SHADER);
-    let fs = compile_shader(FS_SRC, gl::FRAGMENT_SHADER);
-    let program = link_program(vs, fs);
+        // Create GLSL shaders
+        vs = compile_shader(VS_SRC, gl::VERTEX_SHADER);
+        fs = compile_shader(FS_SRC, gl::FRAGMENT_SHADER);
+        program = link_program(vs, fs);
 
-    let mut vao = 0;
-    let mut vbo = 0;
+        vao = 0;
+        vbo = 0;
 
-    unsafe {
         // Create Vertex Array Object
         gl::GenVertexArrays(1, &mut vao);
         gl::BindVertexArray(vao);
@@ -101,8 +100,8 @@ fn main() {
         gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
         gl::BufferData(
             gl::ARRAY_BUFFER,
-            (VERTEX_DATA.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
-            mem::transmute(&VERTEX_DATA[0]),
+            (VERTEX_DATA.len() * size_of::<GLfloat>()) as GLsizeiptr,
+            std::mem::transmute(&VERTEX_DATA[0]),
             gl::STATIC_DRAW,
         );
 
@@ -120,8 +119,8 @@ fn main() {
             2,
             gl::FLOAT,
             gl::FALSE as GLboolean,
-            5 * mem::size_of::<GLfloat>() as GLsizei,
-            ptr::null(),
+            5 * size_of::<GLfloat>() as GLsizei,
+            null(),
         );
 
         let color = CString::new("color").unwrap();
@@ -132,8 +131,8 @@ fn main() {
             3,
             gl::FLOAT,
             gl::FALSE as GLboolean,
-            5 * mem::size_of::<GLfloat>() as GLsizei,
-            ptr::null::<std::ffi::c_void>().offset(2 * mem::size_of::<GLfloat>() as isize),
+            5 * size_of::<GLfloat>() as GLsizei,
+            null::<std::ffi::c_void>().offset(2 * size_of::<GLfloat>() as isize),
         );
     }
 
@@ -168,70 +167,56 @@ fn main() {
     }
 }
 
-fn compile_shader(src: &str, shader_type: GLenum) -> GLuint {
-    let shader;
-    unsafe {
-        shader = gl::CreateShader(shader_type);
+unsafe fn compile_shader(src: &str, shader_type: GLenum) -> GLuint {
+    let shader = gl::CreateShader(shader_type);
 
-        // Attempt to compile the shader
-        let src = CString::new(src).unwrap();
-        gl::ShaderSource(shader, 1, &src.as_ptr(), ptr::null());
-        gl::CompileShader(shader);
+    // Attempt to compile the shader
+    let src = CString::new(src).unwrap();
+    gl::ShaderSource(shader, 1, &src.as_ptr(), null());
+    gl::CompileShader(shader);
 
-        // Get the compile status
-        let mut status = gl::FALSE as GLint;
-        gl::GetShaderiv(shader, gl::COMPILE_STATUS, &mut status);
+    // Get the compile status
+    let mut status = gl::FALSE as GLint;
+    gl::GetShaderiv(shader, gl::COMPILE_STATUS, &mut status);
 
-        // Fail on error
-        if status != (gl::TRUE as GLint) {
-            let mut len = 0;
-            gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
-            let mut buf: Vec<u8> = repeat(0).take(len as usize - 1).collect(); // subtract 1 to skip the trailing null character
-            gl::GetShaderInfoLog(
-                shader,
-                len,
-                ptr::null_mut(),
-                buf.as_mut_ptr() as *mut GLchar,
-            );
-            panic!(
-                "{:?}",
-                str::from_utf8(&buf).expect("ShaderInfoLog not valid utf8")
-            );
-        }
+    // Fail on error
+    if status != (gl::TRUE as GLint) {
+        let mut len = 0;
+        gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
+        let mut buf: Vec<u8> = repeat(0).take(len as usize - 1).collect(); // subtract 1 to skip the trailing null character
+        gl::GetShaderInfoLog(shader, len, null_mut(), buf.as_mut_ptr() as *mut GLchar);
+        panic!(
+            "{:?}",
+            from_utf8(&buf).expect("ShaderInfoLog not valid utf8")
+        );
     }
+
     shader
 }
 
-fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
-    let program;
-    unsafe {
-        program = gl::CreateProgram();
+unsafe fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
+    let program = gl::CreateProgram();
 
-        gl::AttachShader(program, vs);
-        gl::AttachShader(program, fs);
-        gl::LinkProgram(program);
+    gl::AttachShader(program, vs);
+    gl::AttachShader(program, fs);
+    gl::LinkProgram(program);
 
-        // Get the link status
-        let mut status = gl::FALSE as GLint;
-        gl::GetProgramiv(program, gl::LINK_STATUS, &mut status);
+    // Get the link status
+    let mut status = gl::FALSE as GLint;
+    gl::GetProgramiv(program, gl::LINK_STATUS, &mut status);
 
-        // Fail on error
-        if status != (gl::TRUE as GLint) {
-            let mut len: GLint = 0;
-            gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
-            let mut buf: Vec<u8> = repeat(0).take(len as usize - 1).collect(); // subtract 1 to skip the trailing null character
-            gl::GetProgramInfoLog(
-                program,
-                len,
-                ptr::null_mut(),
-                buf.as_mut_ptr() as *mut GLchar,
-            );
-            panic!(
-                "{:?}",
-                str::from_utf8(&buf).expect("ProgramInfoLog not valid utf8")
-            );
-        }
+    // Fail on error
+    if status != (gl::TRUE as GLint) {
+        let mut len: GLint = 0;
+        gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
+        let mut buf: Vec<u8> = repeat(0).take(len as usize - 1).collect(); // subtract 1 to skip the trailing null character
+        gl::GetProgramInfoLog(program, len, null_mut(), buf.as_mut_ptr() as *mut GLchar);
+        panic!(
+            "{:?}",
+            from_utf8(&buf).expect("ProgramInfoLog not valid utf8")
+        );
     }
+
     program
 }
 
