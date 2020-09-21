@@ -1,11 +1,11 @@
 extern crate gl;
 extern crate glfw;
 
+use std::ffi::CString;
+use std::iter::repeat;
 use std::mem;
 use std::ptr;
 use std::str;
-use std::iter::repeat;
-use std::ffi::CString;
 
 use gl::types::*;
 use glfw::Context;
@@ -14,10 +14,8 @@ use glfw::Context;
 // A triangle
 //
 static VERTEX_DATA: [GLfloat; 15] = [
-//  X       Y       R       G       B
-    0.0,    0.5,    1.0,    0.0,    0.0,
-    0.5,    -0.5,   0.0,    1.0,    0.0,
-    -0.5,   -0.5,   0.0,    0.0,    1.0
+    //  X       Y       R       G       B
+    0.0, 0.5, 1.0, 0.0, 0.0, 0.5, -0.5, 0.0, 1.0, 0.0, -0.5, -0.5, 0.0, 0.0, 1.0,
 ];
 
 //
@@ -56,17 +54,19 @@ static FS_SRC: &'static str = r#"
     }
 "#;
 
-
 fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).ok().unwrap();
 
     // Choose a GL profile
     glfw.window_hint(glfw::WindowHint::ContextVersion(3, 2));
     glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
-    glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
+    glfw.window_hint(glfw::WindowHint::OpenGlProfile(
+        glfw::OpenGlProfileHint::Core,
+    ));
 
     // Create Window
-    let (mut window, events) = glfw.create_window(1024, 768, "Stainless", glfw::WindowMode::Windowed)
+    let (mut window, events) = glfw
+        .create_window(1024, 768, "Stainless", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window.");
 
     // Window configuration
@@ -104,7 +104,8 @@ fn main() {
             gl::ARRAY_BUFFER,
             (VERTEX_DATA.len() * mem::size_of::<GLfloat>()) as GLsizeiptr,
             mem::transmute(&VERTEX_DATA[0]),
-            gl::STATIC_DRAW);
+            gl::STATIC_DRAW,
+        );
 
         // Use shader program
         gl::UseProgram(program);
@@ -114,16 +115,24 @@ fn main() {
         let pos_attr = gl::GetAttribLocation(program, CString::new("position").unwrap().as_ptr());
         gl::EnableVertexAttribArray(pos_attr as GLuint);
         gl::VertexAttribPointer(
-            pos_attr as GLuint, 2, gl::FLOAT, gl::FALSE as GLboolean,
+            pos_attr as GLuint,
+            2,
+            gl::FLOAT,
+            gl::FALSE as GLboolean,
             5 * mem::size_of::<GLfloat>() as GLsizei,
-            ptr::null());
+            ptr::null(),
+        );
 
         let color_attr = gl::GetAttribLocation(program, CString::new("color").unwrap().as_ptr());
         gl::EnableVertexAttribArray(color_attr as GLuint);
         gl::VertexAttribPointer(
-            color_attr as GLuint, 3, gl::FLOAT, gl::FALSE as GLboolean,
+            color_attr as GLuint,
+            3,
+            gl::FLOAT,
+            gl::FALSE as GLboolean,
             5 * mem::size_of::<GLfloat>() as GLsizei,
-            ptr::null().offset(3 * mem::size_of::<GLfloat>() as isize));
+            ptr::null().offset(3 * mem::size_of::<GLfloat>() as isize),
+        );
     }
 
     // Loop until the user closes the window
@@ -175,8 +184,18 @@ fn compile_shader(src: &str, shader_type: GLenum) -> GLuint {
             let mut len = 0;
             gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
             let mut buf: Vec<u8> = repeat(0).take(len as usize - 1).collect(); // subtract 1 to skip the trailing null character
-            gl::GetShaderInfoLog(shader, len, ptr::null_mut(), buf.as_mut_ptr() as *mut GLchar);
-            panic!("{:?}", str::from_utf8(&buf).ok().expect("ShaderInfoLog not valid utf8"));
+            gl::GetShaderInfoLog(
+                shader,
+                len,
+                ptr::null_mut(),
+                buf.as_mut_ptr() as *mut GLchar,
+            );
+            panic!(
+                "{:?}",
+                str::from_utf8(&buf)
+                    .ok()
+                    .expect("ShaderInfoLog not valid utf8")
+            );
         }
     }
     shader
@@ -200,8 +219,18 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
             let mut len: GLint = 0;
             gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
             let mut buf: Vec<u8> = repeat(0).take(len as usize - 1).collect(); // subtract 1 to skip the trailing null character
-            gl::GetProgramInfoLog(program, len, ptr::null_mut(), buf.as_mut_ptr() as *mut GLchar);
-            panic!("{:?}", str::from_utf8(&buf).ok().expect("ProgramInfoLog not valid utf8"));
+            gl::GetProgramInfoLog(
+                program,
+                len,
+                ptr::null_mut(),
+                buf.as_mut_ptr() as *mut GLchar,
+            );
+            panic!(
+                "{:?}",
+                str::from_utf8(&buf)
+                    .ok()
+                    .expect("ProgramInfoLog not valid utf8")
+            );
         }
     }
     program
