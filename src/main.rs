@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::ffi::CString;
 use std::iter::repeat;
 use std::mem::size_of;
@@ -6,6 +7,8 @@ use std::str::from_utf8;
 
 use gl::types::{GLboolean, GLchar, GLenum, GLfloat, GLint, GLsizei, GLsizeiptr, GLuint};
 use glfw::Context;
+
+type MyResult<T> = Result<T, Box<dyn Error>>;
 
 //
 // A triangle
@@ -53,8 +56,8 @@ static FS_SRC: &str = r#"
     }
 "#;
 
-fn main() {
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).ok().unwrap();
+fn main() -> MyResult<()> {
+    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS)?;
 
     // Choose a GL profile
     use glfw::WindowHint;
@@ -65,7 +68,7 @@ fn main() {
     // Create Window
     let (mut window, events) = glfw
         .create_window(1024, 768, "Stainless", glfw::WindowMode::Windowed)
-        .expect("Failed to create GLFW window.");
+        .ok_or("Failed to create GLFW window.")?;
 
     // Window configuration
     window.set_key_polling(true);
@@ -84,9 +87,9 @@ fn main() {
         gl::DepthFunc(gl::LEQUAL);
 
         // Create GLSL shaders
-        vs = compile_shader(VS_SRC, gl::VERTEX_SHADER);
-        fs = compile_shader(FS_SRC, gl::FRAGMENT_SHADER);
-        program = link_program(vs, fs);
+        vs = compile_shader(VS_SRC, gl::VERTEX_SHADER)?;
+        fs = compile_shader(FS_SRC, gl::FRAGMENT_SHADER)?;
+        program = link_program(vs, fs)?;
 
         vao = 0;
         vbo = 0;
@@ -107,11 +110,11 @@ fn main() {
 
         // Use shader program
         gl::UseProgram(program);
-        let color_out = CString::new("colorOut").unwrap();
+        let color_out = CString::new("colorOut")?;
         gl::BindFragDataLocation(program, 0, color_out.as_ptr());
 
         // Specify the layout of the vertex data
-        let position = CString::new("position").unwrap();
+        let position = CString::new("position")?;
         let pos_attr = gl::GetAttribLocation(program, position.as_ptr());
         gl::EnableVertexAttribArray(pos_attr as GLuint);
         gl::VertexAttribPointer(
@@ -123,7 +126,7 @@ fn main() {
             null(),
         );
 
-        let color = CString::new("color").unwrap();
+        let color = CString::new("color")?;
         let color_attr = gl::GetAttribLocation(program, color.as_ptr());
         gl::EnableVertexAttribArray(color_attr as GLuint);
         gl::VertexAttribPointer(
@@ -165,13 +168,15 @@ fn main() {
         gl::DeleteBuffers(1, &vbo);
         gl::DeleteVertexArrays(1, &vao);
     }
+
+    Ok(())
 }
 
-unsafe fn compile_shader(src: &str, shader_type: GLenum) -> GLuint {
+unsafe fn compile_shader(src: &str, shader_type: GLenum) -> MyResult<GLuint> {
     let shader = gl::CreateShader(shader_type);
 
     // Attempt to compile the shader
-    let src = CString::new(src).unwrap();
+    let src = CString::new(src)?;
     gl::ShaderSource(shader, 1, &src.as_ptr(), null());
     gl::CompileShader(shader);
 
@@ -185,16 +190,13 @@ unsafe fn compile_shader(src: &str, shader_type: GLenum) -> GLuint {
         gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
         let mut buf: Vec<u8> = repeat(0).take(len as usize - 1).collect(); // subtract 1 to skip the trailing null character
         gl::GetShaderInfoLog(shader, len, null_mut(), buf.as_mut_ptr() as *mut GLchar);
-        panic!(
-            "{:?}",
-            from_utf8(&buf).expect("ShaderInfoLog not valid utf8")
-        );
+        panic!("{:?}", from_utf8(&buf)?);
     }
 
-    shader
+    Ok(shader)
 }
 
-unsafe fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
+unsafe fn link_program(vs: GLuint, fs: GLuint) -> MyResult<GLuint> {
     let program = gl::CreateProgram();
 
     gl::AttachShader(program, vs);
@@ -211,13 +213,10 @@ unsafe fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
         gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
         let mut buf: Vec<u8> = repeat(0).take(len as usize - 1).collect(); // subtract 1 to skip the trailing null character
         gl::GetProgramInfoLog(program, len, null_mut(), buf.as_mut_ptr() as *mut GLchar);
-        panic!(
-            "{:?}",
-            from_utf8(&buf).expect("ProgramInfoLog not valid utf8")
-        );
+        panic!("{:?}", from_utf8(&buf)?);
     }
 
-    program
+    Ok(program)
 }
 
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
