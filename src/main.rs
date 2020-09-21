@@ -21,7 +21,7 @@ static VERTEX_DATA: [GLfloat; 15] = [
 //
 // Vertex Shader
 //
-static VS_SRC: &'static str = r#"
+static VS_SRC: &str = r#"
     #version 330
 
     in vec2 position;
@@ -40,7 +40,7 @@ static VS_SRC: &'static str = r#"
 //
 // Fragment Shader
 //
-static FS_SRC: &'static str = r#"
+static FS_SRC: &str = r#"
     #version 330
 
     in Data {
@@ -108,10 +108,12 @@ fn main() {
 
         // Use shader program
         gl::UseProgram(program);
-        gl::BindFragDataLocation(program, 0, CString::new("colorOut").unwrap().as_ptr());
+        let color_out = CString::new("colorOut").unwrap();
+        gl::BindFragDataLocation(program, 0, color_out.as_ptr());
 
         // Specify the layout of the vertex data
-        let pos_attr = gl::GetAttribLocation(program, CString::new("position").unwrap().as_ptr());
+        let position = CString::new("position").unwrap();
+        let pos_attr = gl::GetAttribLocation(program, position.as_ptr());
         gl::EnableVertexAttribArray(pos_attr as GLuint);
         gl::VertexAttribPointer(
             pos_attr as GLuint,
@@ -122,7 +124,8 @@ fn main() {
             ptr::null(),
         );
 
-        let color_attr = gl::GetAttribLocation(program, CString::new("color").unwrap().as_ptr());
+        let color = CString::new("color").unwrap();
+        let color_attr = gl::GetAttribLocation(program, color.as_ptr());
         gl::EnableVertexAttribArray(color_attr as GLuint);
         gl::VertexAttribPointer(
             color_attr as GLuint,
@@ -171,7 +174,8 @@ fn compile_shader(src: &str, shader_type: GLenum) -> GLuint {
         shader = gl::CreateShader(shader_type);
 
         // Attempt to compile the shader
-        gl::ShaderSource(shader, 1, &CString::new(src).unwrap().as_ptr(), ptr::null());
+        let src = CString::new(src).unwrap();
+        gl::ShaderSource(shader, 1, &src.as_ptr(), ptr::null());
         gl::CompileShader(shader);
 
         // Get the compile status
@@ -191,9 +195,7 @@ fn compile_shader(src: &str, shader_type: GLenum) -> GLuint {
             );
             panic!(
                 "{:?}",
-                str::from_utf8(&buf)
-                    .ok()
-                    .expect("ShaderInfoLog not valid utf8")
+                str::from_utf8(&buf).expect("ShaderInfoLog not valid utf8")
             );
         }
     }
@@ -226,9 +228,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
             );
             panic!(
                 "{:?}",
-                str::from_utf8(&buf)
-                    .ok()
-                    .expect("ProgramInfoLog not valid utf8")
+                str::from_utf8(&buf).expect("ProgramInfoLog not valid utf8")
             );
         }
     }
@@ -237,10 +237,7 @@ fn link_program(vs: GLuint, fs: GLuint) -> GLuint {
 
 fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
     println!("{:?}", event);
-    match event {
-        glfw::WindowEvent::Key(glfw::Key::Escape, _, glfw::Action::Press, _) => {
-            window.set_should_close(true)
-        }
-        _ => {}
+    if let glfw::WindowEvent::Key(glfw::Key::Escape, _, glfw::Action::Press, _) = event {
+        window.set_should_close(true)
     }
 }
