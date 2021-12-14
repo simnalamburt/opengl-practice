@@ -151,18 +151,19 @@ fn main() -> MyResult<()> {
         *control_flow = ControlFlow::Wait;
 
         match event {
-            Event::WindowEvent { event, .. } => {
-                if let WindowEvent::CloseRequested = event {
-                    // Cleanup
-                    unsafe {
-                        gl::DeleteProgram(program);
-                        gl::DeleteShader(fs);
-                        gl::DeleteShader(vs);
-                        gl::DeleteBuffers(1, &vbo);
-                        gl::DeleteVertexArrays(1, &vao);
-                    }
-                    *control_flow = ControlFlow::Exit
+            Event::WindowEvent {
+                event: WindowEvent::CloseRequested,
+                ..
+            } => {
+                // Cleanup
+                unsafe {
+                    gl::DeleteProgram(program);
+                    gl::DeleteShader(fs);
+                    gl::DeleteShader(vs);
+                    gl::DeleteBuffers(1, &vbo);
+                    gl::DeleteVertexArrays(1, &vao);
                 }
+                *control_flow = ControlFlow::Exit
             }
             Event::RedrawRequested(_) => {
                 unsafe {
