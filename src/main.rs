@@ -1,47 +1,39 @@
-extern crate obj;
-extern crate rustc_serialize;
-extern crate time;
-extern crate bincode;
-
+use obj::{load_obj, Obj};
 use std::fs::File;
 use std::io::BufReader;
-use obj::*;
-use rustc_serialize::json;
-use bincode::rustc_serialize as bcode;
-use bincode::SizeLimit;
-use time::now;
+use time::Instant;
 
 fn main() {
     let input = BufReader::new(File::open("rilakkuma.obj").unwrap());
-    let t0 = now();
+    let t0 = Instant::now();
 
     let dome: Obj = load_obj(input).unwrap();
-    let t = now();
-    println!("obj 로딩 : {}ms", (t - t0).num_milliseconds());
+    let t = Instant::now();
+    println!("obj 로딩 : {}ms", (t - t0).whole_milliseconds());
     let t0 = t;
 
-    println!("");
+    println!();
 
-    let encoded = json::encode(&dome).unwrap();
-    let t = now();
-    println!("json 인코딩 : {}ms", (t - t0).num_milliseconds());
+    let encoded = serde_json::to_string(&dome).unwrap();
+    let t = Instant::now();
+    println!("serde_json 인코딩 : {}ms", (t - t0).whole_milliseconds());
     let t0 = t;
 
-    let _decoded: Obj = json::decode(&encoded).unwrap();
-    let t = now();
-    println!("json 디코딩 : {}ms", (t - t0).num_milliseconds());
+    let _decoded: Obj = serde_json::from_str(&encoded).unwrap();
+    let t = Instant::now();
+    println!("serde_json 디코딩 : {}ms", (t - t0).whole_milliseconds());
     let t0 = t;
 
-    println!("");
+    println!();
 
-    let encoded = bcode::encode(&dome, SizeLimit::Infinite).unwrap();
-    let t = now();
-    println!("bincode 인코딩 : {}ms", (t - t0).num_milliseconds());
+    let encoded = bincode::serialize(&dome).unwrap();
+    let t = Instant::now();
+    println!("bincode 인코딩 : {}ms", (t - t0).whole_milliseconds());
     let t0 = t;
 
-    let _decoded: Obj = bcode::decode(&encoded).unwrap();
-    let t = now();
-    println!("bincode 디코딩 : {}ms", (t - t0).num_milliseconds());
+    let _decoded: Obj = bincode::deserialize(&encoded).unwrap();
+    let t = Instant::now();
+    println!("bincode 디코딩 : {}ms", (t - t0).whole_milliseconds());
     let t0 = t;
 
     let _ = t0;

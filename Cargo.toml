@@ -2,9 +2,11 @@
 name = "encode-practice"
 version = "0.1.0"
 authors = ["Hyeon Kim <simnalamburt@gmail.com>"]
+edition = "2018"
 
 [dependencies]
-obj-rs = { version = "0.4.12", git = "https://github.com/simnalamburt/obj-rs.git", branch = "serialize" }
-rustc-serialize = "0.3"
-time = "0.1"
-bincode = "0.4"
+obj-rs = "0.7"
+serde = "1"
+time = "0.3"
+bincode = "1"
+serde_json = "1"
