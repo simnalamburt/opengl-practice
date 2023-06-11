@@ -91,6 +91,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "binlog-practice"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "mysql_cdc",
+ "walkdir",
+]
+
+[[package]]
 name = "bitflags"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -318,16 +328,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b275950c28b37e794e8c55d88aeb5e139d0ce23fdbbeda68f8d7174abdf9e8fa"
 dependencies = [
  "adler",
-]
-
-[[package]]
-name = "mysql-binlog-parser"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "mysql_cdc",
- "walkdir",
 ]
 
 [[package]]
