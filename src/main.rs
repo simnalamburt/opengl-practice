@@ -11,12 +11,26 @@ enum CounterResponse {
     Count(Json<Count>),
 
     #[oai(status = 400)]
-    BadRequest(PlainText<String>),
+    BadRequest(Json<InvalidArguments>),
+
+    #[oai(status = 500)]
+    InternalServerError(Json<InternalServerError>),
 }
 
 #[derive(Object)]
 struct Count {
     count: u64,
+}
+
+#[derive(Object)]
+struct InvalidArguments {
+    message: String,
+    amount: i64,
+}
+
+#[derive(Object)]
+struct InternalServerError {
+    message: String,
 }
 
 struct Api;
@@ -41,11 +55,18 @@ impl Api {
         // Increment the counter by the specified amount, or by 1 if no amount is provided.
         let amount = amount.unwrap_or(1);
         if amount < 0 {
-            return CounterResponse::BadRequest(PlainText(format!(
-                "amount must be non-negative, got {}",
-                amount
-            )));
+            return CounterResponse::BadRequest(Json(InvalidArguments {
+                message: format!("amount must be non-negative, got {}", amount),
+                amount,
+            }));
         }
+
+        if amount > 100 {
+            return CounterResponse::InternalServerError(Json(InternalServerError {
+                message: format!("omg such a big number ({})", amount),
+            }));
+        }
+
         let amount = amount as u64;
 
         CounterResponse::Count(Json(Count {
