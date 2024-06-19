@@ -1,5 +1,14 @@
 use poem::{listener::TcpListener, Route, Server};
-use poem_openapi::{param::Query, payload::PlainText, OpenApi, OpenApiService};
+use poem_openapi::{
+    param::Query, payload::Json, payload::PlainText, Object, OpenApi, OpenApiService,
+};
+
+static COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+#[derive(Object)]
+struct CounterResponse {
+    count: u64,
+}
 
 struct Api;
 
@@ -8,6 +17,22 @@ impl Api {
     #[oai(path = "/", method = "get")]
     async fn index(&self, Query(name): Query<String>) -> PlainText<String> {
         PlainText(format!("hello: {}", name))
+    }
+
+    #[oai(path = "/counter", method = "get")]
+    async fn counter(&self) -> Json<CounterResponse> {
+        // Read the counter value without incrementing it.
+        Json(CounterResponse {
+            count: COUNTER.load(std::sync::atomic::Ordering::Acquire),
+        })
+    }
+
+    #[oai(path = "/counter", method = "post")]
+    async fn counter_incr(&self) -> Json<CounterResponse> {
+        // Increment the counter and return the new value.
+        Json(CounterResponse {
+            count: COUNTER.fetch_add(1, std::sync::atomic::Ordering::AcqRel) + 1,
+        })
     }
 }
 
