@@ -1,6 +1,7 @@
 use poem::{listener::TcpListener, Route, Server};
 use poem_openapi::{
     param::Query, payload::Json, payload::PlainText, ApiResponse, Object, OpenApi, OpenApiService,
+    Union,
 };
 
 static COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
@@ -8,13 +9,25 @@ static COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new
 #[derive(ApiResponse)]
 enum CounterResponse {
     #[oai(status = 200)]
-    Count(Json<Count>),
+    Ok(Json<CounterPayload>),
 
     #[oai(status = 400)]
     BadRequest(Json<InvalidArguments>),
 
     #[oai(status = 500)]
     InternalServerError(Json<InternalServerError>),
+}
+
+#[derive(Union)]
+#[oai(discriminator_name = "type")]
+enum CounterPayload {
+    Welcome(Welcome),
+    Count(Count),
+}
+
+#[derive(Object)]
+struct Welcome {
+    message: String,
 }
 
 #[derive(Object)]
@@ -44,10 +57,16 @@ impl Api {
 
     #[oai(path = "/counter", method = "get")]
     async fn counter(&self) -> CounterResponse {
+        let count = COUNTER.load(std::sync::atomic::Ordering::Acquire);
+
+        if count == 0 {
+            return CounterResponse::Ok(Json(CounterPayload::Welcome(Welcome {
+                message: "Welcome to the counter API!".to_string(),
+            })));
+        }
+
         // Read the counter value without incrementing it.
-        CounterResponse::Count(Json(Count {
-            count: COUNTER.load(std::sync::atomic::Ordering::Acquire),
-        }))
+        CounterResponse::Ok(Json(CounterPayload::Count(Count { count })))
     }
 
     #[oai(path = "/counter", method = "post")]
@@ -69,9 +88,9 @@ impl Api {
 
         let amount = amount as u64;
 
-        CounterResponse::Count(Json(Count {
+        CounterResponse::Ok(Json(CounterPayload::Count(Count {
             count: COUNTER.fetch_add(amount, std::sync::atomic::Ordering::AcqRel) + amount,
-        }))
+        })))
     }
 }
 
