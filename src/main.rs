@@ -1,12 +1,21 @@
 use poem::{listener::TcpListener, Route, Server};
 use poem_openapi::{
-    param::Query, payload::Json, payload::PlainText, Object, OpenApi, OpenApiService,
+    param::Query, payload::Json, payload::PlainText, ApiResponse, Object, OpenApi, OpenApiService,
 };
 
 static COUNTER: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 
+#[derive(ApiResponse)]
+enum CounterResponse {
+    #[oai(status = 200)]
+    Count(Json<Count>),
+
+    #[oai(status = 400)]
+    BadRequest(PlainText<String>),
+}
+
 #[derive(Object)]
-struct CounterResponse {
+struct Count {
     count: u64,
 }
 
@@ -20,19 +29,28 @@ impl Api {
     }
 
     #[oai(path = "/counter", method = "get")]
-    async fn counter(&self) -> Json<CounterResponse> {
+    async fn counter(&self) -> CounterResponse {
         // Read the counter value without incrementing it.
-        Json(CounterResponse {
+        CounterResponse::Count(Json(Count {
             count: COUNTER.load(std::sync::atomic::Ordering::Acquire),
-        })
+        }))
     }
 
     #[oai(path = "/counter", method = "post")]
-    async fn counter_incr(&self) -> Json<CounterResponse> {
-        // Increment the counter and return the new value.
-        Json(CounterResponse {
-            count: COUNTER.fetch_add(1, std::sync::atomic::Ordering::AcqRel) + 1,
-        })
+    async fn counter_incr(&self, amount: Query<Option<i64>>) -> CounterResponse {
+        // Increment the counter by the specified amount, or by 1 if no amount is provided.
+        let amount = amount.unwrap_or(1);
+        if amount < 0 {
+            return CounterResponse::BadRequest(PlainText(format!(
+                "amount must be non-negative, got {}",
+                amount
+            )));
+        }
+        let amount = amount as u64;
+
+        CounterResponse::Count(Json(Count {
+            count: COUNTER.fetch_add(amount, std::sync::atomic::Ordering::AcqRel) + amount,
+        }))
     }
 }
 
