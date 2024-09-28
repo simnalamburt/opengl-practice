@@ -1,4 +1,5 @@
 use std::io::Result;
+use unicode_width::UnicodeWidthStr;
 
 struct State {
     input: String,
@@ -27,7 +28,7 @@ impl State {
     }
 
     fn cursor(&self) -> u16 {
-        self.idx_chars as u16
+        self.input[..self.idx_bytes()].width_cjk() as u16
     }
 }
 
