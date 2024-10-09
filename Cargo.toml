@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+dotenvy = { git = "https://github.com/allan2/dotenvy.git", rev = "efd05736" }
+sqlx = { version = "0.8", features = ["postgres", "uuid", "time", "runtime-tokio", "tls-rustls-ring"] }
+tokio = { version = "1.40.0", features = ["rt-multi-thread", "macros"] }
+anyhow = "1"
