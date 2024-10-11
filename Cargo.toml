@@ -4,3 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+dotenvy = { git = "https://github.com/allan2/dotenvy.git", version = "0.15.7" }

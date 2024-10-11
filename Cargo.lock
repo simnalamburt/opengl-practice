@@ -3,5 +3,13 @@
 version = 3
 
 [[package]]
+name = "dotenvy"
+version = "0.15.7"
+source = "git+https://github.com/allan2/dotenvy.git#e2da110668572cf2d67178f192eb1fc285224040"
+
+[[package]]
 name = "dotenvy-practice"
 version = "0.1.0"
+dependencies = [
+ "dotenvy",
+]
