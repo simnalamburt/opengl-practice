@@ -15,8 +15,8 @@ Fix: ([`40d92a2`](https://github.com/simnalamburt/ratatui-practice/commit/40d92a
 
 Before:
 
-![](./before.avif)
+![Recording before fixing the bug](https://i.hyeon.me/sample-rust-apps/ratatui-practice/before.avif)
 
 After:
 
-![](./after.avif)
+![Recording after fixing the bug](https://i.hyeon.me/sample-rust-apps/ratatui-practice/after.avif)
