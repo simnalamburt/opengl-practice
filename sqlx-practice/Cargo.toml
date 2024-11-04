@@ -1,0 +1,9 @@
+[package]
+name = "sqlx-practice"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio"] }
+tokio = { version = "1.40.0", features = ["rt-multi-thread", "macros"] }
+anyhow = "1"
