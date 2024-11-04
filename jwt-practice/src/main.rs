@@ -11,7 +11,7 @@ fn main() -> Result<()> {
     let mut validation = Validation::default();
     validation.set_audience(&["foo"]);
 
-    let result = decode::<Object>(TOKEN,&secret, &validation)?;
+    let result = decode::<Object>(TOKEN, &secret, &validation)?;
 
     println!("{result:#?}");
 
