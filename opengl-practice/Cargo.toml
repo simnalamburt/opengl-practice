@@ -1,0 +1,9 @@
+[package]
+name = "opengl-practice"
+version = "0.0.1"
+authors = ["Hyeon Kim <simnalamburt@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+gl = "0.14.0"
+glutin = "0.28"
