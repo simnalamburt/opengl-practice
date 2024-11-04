@@ -112,7 +112,7 @@ fn main() -> MyResult<()> {
         gl::BufferData(
             gl::ARRAY_BUFFER,
             (VERTEX_DATA.len() * size_of::<GLfloat>()) as GLsizeiptr,
-            std::mem::transmute(&VERTEX_DATA[0]),
+            &VERTEX_DATA[0] as *const f32 as *const std::ffi::c_void,
             gl::STATIC_DRAW,
         );
 
