@@ -1,0 +1,9 @@
+[package]
+name = "poem-practice"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+poem = "3.0.1"
+poem-openapi = { version = "5.0.2", features = ["swagger-ui"] }
+tokio = { version = "1.38.0", features = ["rt-multi-thread", "macros"] }
